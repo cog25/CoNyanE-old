@@ -1,9 +1,10 @@
-import { Message } from "https://deno.land/x/harmony@v2.1.2/mod.ts";
+import { Command } from "../Command.ts"
 
 export default {
     name: "hi",
-    alias: [],
-    handler: (msg:Message)=>{
-        msg.channel.send(`Hello, ${msg.author.mention}`);
+    alias: ['안녕','하이','방가'],
+    handler: (msg)=>{
+        msg.addReaction('‼️');
+        msg.channel.send(`Hello✋, ${msg.author.mention}`);
     }
-}
+} as Command;
