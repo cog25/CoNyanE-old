@@ -1,3 +1,3 @@
-# CoNyan
+# CoNyanE
 
 A Discord Bot!
