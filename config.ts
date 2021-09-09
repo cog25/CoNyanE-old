@@ -1,6 +1,6 @@
 import "https://deno.land/x/dotenv@v2.0.0/load.ts";
 import { colors } from "./util.ts";
-let isEnvExist:boolean = true;
+let isEnvExist = true;
 
 function getEnv(key:string):string{
     const value = Deno.env.get(key);
