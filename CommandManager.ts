@@ -1,14 +1,9 @@
-import { Command } from "./Command.ts";
+import { Command, CommandWithPath } from "./Command.ts";
 
 const isCommandFile = (e:Deno.DirEntry) => e.isFile && e.name.endsWith(".ts") && !e.name.startsWith('_');
-// {
-//   if (!e.isFile) return;
-//   if (!e.name.endsWith(".ts")) return;
-//   if (e.name.startsWith("_")) return;
-// }
 
-const cmdMap = new Map<string, Command>();
-const aliasMap = new Map<string, string>();
+let cmdMap:Map<string, CommandWithPath> = new Map();
+let aliasMap:Map<string, string> = new Map();
 
 export default {
   get(name: string) {
@@ -19,21 +14,24 @@ export default {
     }
     return cmd;
   },
-  async load() {
-    const tmp = Date.now();
+  async loadall() {
+    cmdMap = new Map();
+    aliasMap = new Map();
 
-    Deno.readDir("./command");
+    const tmp = Date.now();
+    
     for await (const e of Deno.readDir("./command")) {
       if(!isCommandFile(e)) return;
 
-      const cmd = (await import(`./command/${e.name}#${tmp}`)).default as Command;
+      try {
+        const path = await Deno.realPath(`./command/${e.name}#${tmp}`)
+        const cmd = (await import(path)).default as Command;
+        cmdMap.set(cmd.name, { ...cmd , path: path } as CommandWithPath);
 
-      cmdMap.set(cmd.name,cmd);
-
-      cmd.alias.forEach(e=> aliasMap.set(e,cmd.name));
+        cmd.alias.forEach(e=> aliasMap.set(e,cmd.name));
+      } catch (e:unknown) {
+        console.log((e as Error).stack);
+      }
     }
-  },
-  async reload(filename:string){
-    
   }
 };
